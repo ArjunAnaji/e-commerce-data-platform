@@ -1,8 +1,11 @@
 -- MySQL: Switch to db database if not in this database already
+CREATE DATABASE IF NOT EXISTS db;
+
+-- MySQL: Switch to db database if not in this database already
 USE db;
 
 -- MySQL:  Query for customer table creation in the db database
-CREATE TABLE customer (
+CREATE TABLE IF NOT EXISTS customer (
     id INT,
     first_name VARCHAR(50),
     last_name VARCHAR(50),
@@ -13,7 +16,7 @@ CREATE TABLE customer (
 );
 
 -- MySQL:  Query for salesorder table creation in the db database
-CREATE TABLE salesorder (
+CREATE TABLE IF NOT EXISTS salesorder (
     id INT,
     customer_id INT,
     order_number VARCHAR(100),
@@ -24,7 +27,7 @@ CREATE TABLE salesorder (
 );
 
 -- MySQL:  Query for salesorderitem table creation in the db database
-CREATE TABLE salesorderitem (
+CREATE TABLE IF NOT EXISTS salesorderitem (
     item_id INT,
     order_id INT,
     product_id INT,
