@@ -1,4 +1,4 @@
-# E-Commerce Order Data Management Platform
+# E-Commerce Sales Data Management Platform
 End-to-End ETL Pipelines for E-Commerce Sales Data using Python, Airflow, MySQL PostgreSQL and Docker
 
 This project demonstrates the design and implementation of a complete data platform for your-luxury-goods.com, an e-commerce company. The solution extracts transactional sales data from a MySQL OLTP system, loads it into a PostgreSQL-based Data Warehouse, and performs data quality checks, cleansing, normalization, and transformation to power analytics-ready Data Marts.
