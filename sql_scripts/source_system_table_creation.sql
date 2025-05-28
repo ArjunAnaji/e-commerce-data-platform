@@ -1,4 +1,4 @@
--- MySQL: Query to create database - db
+-- MySQL: Switch to db database if not in this database already
 CREATE DATABASE IF NOT EXISTS db;
 
 -- MySQL: Switch to db database if not in this database already
