@@ -47,8 +47,9 @@ def transform_customer(df, **kwargs):
     return df
 
 
-def transform_salesorder(df, pg_ods):
+def transform_salesorder(df, **kwargs):
     # Check for valid customer IDs in the salesorder dataset
+    pg_ods = kwargs['pg_engine']
     existing_customers = pd.read_sql("SELECT DISTINCT id FROM customer", pg_ods)
     df = df[df['customer_id'].isin(existing_customers['id'])]
     logger.info(f"{len(df)} new records after checking for valid customer ids")
@@ -70,7 +71,9 @@ def transform_salesorder(df, pg_ods):
     return df
 
 
-def transform_salesorderitem(df, pg_ods):
+def transform_salesorderitem(df, **kwargs):
+    # Check for valid order IDs in the salesorderitem dataset
+    pg_ods = kwargs['pg_engine']
     existing_orders = pd.read_sql("SELECT DISTINCT id FROM salesorder", pg_ods)
     df = df[df['order_id'].isin(existing_orders['id'])]
 
@@ -115,7 +118,6 @@ def get_new_records(pg_engine, table, key_column, target_schema):
 
         query = f"SELECT * FROM {table} WHERE {condition}"
         new_records_df = pd.read_sql(query, pg_engine)
-        logger.info(f"Extracted {len(new_records_df)} new records from {table} table")
         return new_records_df
     except Exception as e:
         logger.error(f"Error extracting data from {table}: {e}")
@@ -135,24 +137,42 @@ def transform_and_load_to_ods():
     try:
         pg_landing, pg_ods = get_pg_engines()
 
-        # Data transformation and load
-        # Customer transformation
-        customer = get_new_records(pg_landing, 'customer', 'id', 'operational_data_store')
-        customer_cleaned = transform_customer(customer)
-        load_to_ods(customer_cleaned, "customer", pg_ods)
-        logger.info("Transformed customer table loaded to ODS")
+        # Define table configs with a flexibility to add customer parameters
+        etl_config = [
+            {
+                'table': 'customer',
+                'key_column': 'id',
+                'transform_func': transform_customer,
+                'kwargs': {}
+            },
+            {
+                'table': 'salesorder',
+                'key_column': 'id',
+                'transform_func': transform_salesorder,
+                'kwargs': {'pg_engine': pg_ods}
+            },
+            {
+                'table': 'salesorderitem',
+                'key_column': 'item_id',
+                'transform_func': transform_salesorderitem,
+                'kwargs': {'pg_engine': pg_ods}
+            }
+        ]
 
-        # Salesorder transformation
-        salesorder = get_new_records(pg_landing, 'salesorder', 'id', 'operational_data_store')
-        salesorder_cleaned = transform_salesorder(salesorder, pg_ods)
-        load_to_ods(salesorder_cleaned, "salesorder", pg_ods)
-        logger.info("Transformed salesorder table loaded to ODS")
+        for config in etl_config:
+            # Data transformation and load
+            table, key_column, transform_func, kwargs = config['table'], config['key_column'], \
+                config['transform_func'], config['kwargs']
+            new_records_df = get_new_records(pg_landing, table, config['key_column'], 'operational_data_store')
 
-        # Salesorderitem transformation
-        salesorderitem = get_new_records(pg_landing, 'salesorderitem', 'item_id', 'operational_data_store')
-        salesorderitem_cleaned = transform_salesorderitem(salesorderitem, pg_ods)
-        load_to_ods(salesorderitem_cleaned, "salesorderitem", pg_ods)
-        logger.info("Transformed salesorderitem table loaded to ODS")
+            if new_records_df is not None and not new_records_df.empty:
+                logger.info(f"Extracted {len(new_records_df)} new records from {table} table")
+                transformed_df = config['transform_func'](new_records_df, **config['kwargs'])
+                logger.info(f"Transformed {len(transformed_df)} new records from {table} table")
+                load_to_ods(transformed_df, table, pg_ods)
+                logger.info(f"Loaded the cleaned and transformed data of {table} table into Operational Data Store.")
+            else:
+                logger.info(f"No new data found for {table} table, skipping transformation")
 
     except Exception as e:
         logger.error(f"Transformation DAG failed: {e}")
