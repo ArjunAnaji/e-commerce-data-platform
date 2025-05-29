@@ -13,4 +13,6 @@ Data Mart: Flattened, business-ready dataset for reporting and analytics
 
 Data Analysis: Sales, product, customer and pricing data analytics on the flattened table
 
+<img width="962" alt="e-commerce-data-flow-architecture" src="https://github.com/user-attachments/assets/7315ede0-948e-4fe8-b7e8-14395c66b704" />
+
 Tools & Tech: Airflow (v1.10.9), MySQL, PostgreSQL, Docker, Pandas, SQLAlchemy
