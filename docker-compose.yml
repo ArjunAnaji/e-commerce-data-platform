@@ -1,0 +1,51 @@
+services:
+  db-mysql:
+    image: mysql/mysql-server:8.0
+    platform: linux/arm64/v8
+    container_name: mysql
+    environment:
+      MYSQL_DATABASE: db
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+    networks:
+      - mysql_default
+
+  db-postgres:
+    image: postgres:14-alpine
+    platform: linux/arm64/v8
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    networks:
+      - mysql_default
+
+  airflow:
+    image: mohan277/ounass_airflow:0.3
+    container_name: airflow
+    restart: always
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./dags:/usr/local/airflow/dags
+      - ./tests:/usr/local/airflow/tests
+    environment:
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      AIRFLOW__WEBSERVER__DEFAULT_UI_TIMEZONE: 'UTC'
+    command: webserver
+    networks:
+      - mysql_default
+
+networks:
+  mysql_default:
+    external: true
