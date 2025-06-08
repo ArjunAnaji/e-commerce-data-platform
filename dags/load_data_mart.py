@@ -53,7 +53,7 @@ def apply_data_quality_checks(final_df):
     for col in numeric_fields:
         before = len(final_df)
         final_df = final_df[final_df[col] > 0]
-        logger.info(f"Dropped {before - len(final_df)} rows with negative values in column '{col}'")
+        logger.info(f"Dropped {before - len(final_df)} rows with zero or negative values in column '{col}'")
 
     # Remove records with suspicious or disposable email domains (e.g., tempmail.com, example.com, etc.)
     before = len(final_df)
