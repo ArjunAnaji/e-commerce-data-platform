@@ -181,18 +181,20 @@ def transform_and_load_to_ods():
 
 # Default DAG arguments
 default_args = {
-    "owner": "airflow",
-    "retries": 2,
-    "retry_delay": timedelta(minutes=5),
-    "start_date": datetime(2024, 1, 1),
+    'owner': 'airflow',
+    'start_date': datetime(2025, 5, 25),
+    'retries': 1,
+    'retry_delay': timedelta(minutes=5)
 }
 
 # Define DAG
 dag2 = DAG(
     dag_id="transform_landing_data_and_load_to_ods",
     default_args=default_args,
-    schedule_interval='@daily',
+    schedule_interval='30 0 * * *',
     catchup=False,
+    concurrency=5,
+    max_active_runs=1
 )
 
 # Define tasks
@@ -200,10 +202,11 @@ dag2 = DAG(
 # Sensor to wait for DAG 1 completion
 wait_for_dag1 = ExternalTaskSensor(
     task_id='wait_for_extract_dag',
-    external_dag_id='extract_mysql_to_pg_landing',
-    external_task_id='extract_data',
+    external_dag_id='extract_source_data_to_landing_zone',
+    external_task_id='extract_and_load_source_data',
     timeout=600,
     mode='poke',
+    poke_interval=10,
     dag=dag2
 )
 

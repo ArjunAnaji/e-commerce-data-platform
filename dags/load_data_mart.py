@@ -2,7 +2,7 @@ from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 from airflow.hooks.base_hook import BaseHook
 from airflow.sensors.external_task_sensor import ExternalTaskSensor
-from datetime import datetime
+from datetime import datetime, timedelta
 import pandas as pd
 import sqlalchemy
 import logging
@@ -133,16 +133,19 @@ def load_data_mart(**kwargs):
 
 # Airflow DAG definition
 default_args = {
-    'start_date': datetime(2024, 1, 1),
-    'retries': 1
+    'owner': 'airflow',
+    'start_date': datetime(2025, 5, 25),
+    'retries': 1,
+    'retry_delay': timedelta(minutes=5)
 }
 
 dag3 = DAG(
     dag_id="load_data_mart",
-    schedule_interval="@daily",
+    schedule_interval='30 0 * * *',
     default_args=default_args,
     catchup=False,
-    tags=["data_mart"]
+    concurrency=5,
+    max_active_runs=1
 )
 
 # Sensor to wait for upstream DAG completion
@@ -152,6 +155,7 @@ wait_for_dag2 = ExternalTaskSensor(
     external_task_id='transform_and_load',
     timeout=600,
     mode='poke',
+    poke_interval=10,
     dag=dag3
 )
 

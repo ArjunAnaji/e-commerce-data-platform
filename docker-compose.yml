@@ -39,10 +39,12 @@ services:
     volumes:
       - ./dags:/usr/local/airflow/dags
       - ./tests:/usr/local/airflow/tests
+      - ./logs:/usr/local/airflow/logs
     environment:
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__WEBSERVER__DEFAULT_UI_TIMEZONE: 'UTC'
-      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:password@postgres:5432/postgres
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:password@postgres:5432/postgres
       AIRFLOW__CORE__FERNET_KEY: HRGqKuGNNoHPu_WlFpE3VEV7tpY3AvK_kvZ_u-S1TbM=
     command: webserver
     networks:
@@ -57,10 +59,12 @@ services:
     volumes:
       - ./dags:/usr/local/airflow/dags
       - ./tests:/usr/local/airflow/tests
+      - ./logs:/usr/local/airflow/logs
     environment:
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__WEBSERVER__DEFAULT_UI_TIMEZONE: 'UTC'
-      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:password@postgres:5432/postgres
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://postgres:password@postgres:5432/postgres
       AIRFLOW__CORE__FERNET_KEY: HRGqKuGNNoHPu_WlFpE3VEV7tpY3AvK_kvZ_u-S1TbM=
     command: scheduler
     networks:

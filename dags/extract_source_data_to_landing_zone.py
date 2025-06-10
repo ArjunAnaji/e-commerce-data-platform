@@ -89,7 +89,7 @@ def extract_data():
 # Default DAG arguments
 default_args = {
     'owner': 'airflow',
-    'start_date': datetime(2024, 1, 1),
+    'start_date': datetime(2025, 5, 25),
     'retries': 1,
     'retry_delay': timedelta(minutes=5)
 }
@@ -97,9 +97,11 @@ default_args = {
 # DAG definition
 dag1 = DAG(
     dag_id='extract_source_data_to_landing_zone',
+    schedule_interval='30 0 * * *',
     default_args=default_args,
-    schedule_interval='@daily',
-    catchup=False
+    catchup=False,
+    concurrency=5,
+    max_active_runs=1
 )
 
 extract_task = PythonOperator(
