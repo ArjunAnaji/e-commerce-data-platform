@@ -41,11 +41,13 @@ CREATE TABLE IF NOT EXISTS salesorderitem (
 );
 
 
--- For customer.id
+-- For customer.id fields
 CREATE INDEX idx_customer_id ON customer(id);
 
--- For salesorder.id
+-- For salesorder.id and created_at fields
 CREATE INDEX idx_salesorder_id ON salesorder(id);
+CREATE INDEX idx_salesorder_created_at ON salesorder(created_at);
 
--- For salesorderitem.item_id
+-- For salesorderitem.item_id, order_id and created_at fields
 CREATE INDEX idx_salesorderitem_item_id ON salesorderitem(item_id);
+CREATE INDEX idx_salesorderitem_item_created_at ON salesorderitem(created_at);
